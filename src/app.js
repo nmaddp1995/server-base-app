@@ -1,5 +1,6 @@
 import express from 'express';
 import bodyParser from 'body-parser';
+import cors from 'cors';
 
 import InitiateMongoServer from './config/db';
 import user from './routes/user';
@@ -15,6 +16,8 @@ app.use(bodyParser.json());
 app.get('/', (req, res) => {
     res.json({ message: 'API Working'});
 });
+
+app.use(cors());
 
 app.use('/user', user);
 

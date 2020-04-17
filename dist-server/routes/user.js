@@ -29,7 +29,7 @@ var _auth2 = _interopRequireDefault(_auth);
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 var router = (0, _express.Router)();
-router.post('/signup', [(0, _expressValidator.check)('username', 'Please enter a valid username').not().isEmpty(), (0, _expressValidator.check)('email', 'Please enter a valid email').isEmail(), (0, _expressValidator.check)('password', 'Please enter a valid password').isLength({
+router.post('/signup', [(0, _expressValidator.check)('username', 'Username can\'t be empty').not().isEmpty(), (0, _expressValidator.check)('email', 'Please enter a valid email').isEmail(), (0, _expressValidator.check)('password', 'Please enter a valid password').isLength({
     min: 6
 })], async function (req, res) {
     var errors = (0, _expressValidator.validationResult)(req);
@@ -49,7 +49,16 @@ router.post('/signup', [(0, _expressValidator.check)('username', 'Please enter a
         });
         if (userInDB) {
             return res.status(400).json({
-                msg: "User already exists"
+                message: "Username already exists"
+            });
+        }
+
+        var emailInDB = await _UserModel2.default.findOne({
+            email: email
+        });
+        if (emailInDB) {
+            return res.status(400).json({
+                message: "Email has already used"
             });
         }
 
@@ -73,7 +82,9 @@ router.post('/signup', [(0, _expressValidator.check)('username', 'Please enter a
         }, function (err, token) {
             if (err) throw err;
             res.status(200).json({
-                token: token
+                token: token,
+                username: username,
+                email: email
             });
         });
     } catch (err) {
@@ -102,13 +113,13 @@ router.post('/login', [(0, _expressValidator.check)('username', 'Please enter a 
         console.log('userInDB', userInDB);
         if (!userInDB) {
             return res.status(400).json({
-                message: 'User or password is incorrect'
+                message: 'Username or password is incorrect'
             });
         }
         var isMatchPass = await _bcryptjs2.default.compare(password, userInDB.password);
         if (!isMatchPass) {
             return res.status(400).json({
-                message: 'User or password is incorrect'
+                message: 'Username or password is incorrect'
             });
         }
         var payload = {
@@ -122,7 +133,8 @@ router.post('/login', [(0, _expressValidator.check)('username', 'Please enter a 
         }, function (err, token) {
             if (err) throw err;
             res.status(200).json({
-                token: token
+                token: token,
+                username: username
             });
         });
     } catch (error) {

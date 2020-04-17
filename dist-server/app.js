@@ -8,6 +8,10 @@ var _bodyParser = require('body-parser');
 
 var _bodyParser2 = _interopRequireDefault(_bodyParser);
 
+var _cors = require('cors');
+
+var _cors2 = _interopRequireDefault(_cors);
+
 var _db = require('./config/db');
 
 var _db2 = _interopRequireDefault(_db);
@@ -30,6 +34,8 @@ app.use(_bodyParser2.default.json());
 app.get('/', function (req, res) {
     res.json({ message: 'API Working' });
 });
+
+app.use((0, _cors2.default)());
 
 app.use('/user', _user2.default);
 

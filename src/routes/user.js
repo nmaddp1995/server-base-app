@@ -11,7 +11,7 @@ const router = Router();
 router.post(
     '/signup',
     [
-        check('username', 'Please enter a valid username')
+        check('username', 'Username can\'t be empty')
         .not()
         .isEmpty(),
         check('email', 'Please enter a valid email').isEmail(),
@@ -37,8 +37,17 @@ router.post(
             });
             if (userInDB) {
                 return res.status(400).json({
-                    msg: "User already exists"
+                    message: "Username already exists"
                 });
+            }
+            
+            const emailInDB = await User.findOne({
+                email
+            });
+            if (emailInDB) {
+                return res.status(400).json({
+                    message: "Email has already used"
+                })
             }
             
             const newUser = new User({
@@ -65,7 +74,9 @@ router.post(
                 (err, token) => {
                     if (err) throw err;
                     res.status(200).json({
-                        token
+                        token,
+                        username,
+                        email
                     });
                 }
             );
@@ -99,13 +110,13 @@ router.post(
             console.log('userInDB', userInDB);
             if (!userInDB) {
                 return res.status(400).json({
-                    message: 'User or password is incorrect'
+                    message: 'Username or password is incorrect'
                 })
             }
             const isMatchPass = await bcrypt.compare(password, userInDB.password);
             if (!isMatchPass) {
                 return res.status(400).json({
-                    message: 'User or password is incorrect'
+                    message: 'Username or password is incorrect'
                 })
             }
             const payload = {
@@ -123,7 +134,8 @@ router.post(
                 (err, token) => {
                     if (err) throw err;
                     res.status(200).json({
-                        token
+                        token,
+                        username
                     });
                 }
             );
